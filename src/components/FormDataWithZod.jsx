@@ -1,17 +1,57 @@
-export default function ComplexFormDataForm() {
+import { useState } from 'react';
+import { z } from 'zod';
+
+const schema = z
+  .object({
+    email: z.email('Please enter a valid email address'),
+    password: z.string().min(1, 'Password is required'),
+    'confirm-password': z.string().min(1, 'Please confirm your password'),
+    'first-name': z.string().min(1, 'First name is required'),
+    'last-name': z.string().min(1, 'Last name is required'),
+    terms: z.string({ error: 'You must accept the terms and conditions' }),
+  })
+  .refine(data => data.password === data['confirm-password'], {
+    message: 'Passwords do not match',
+    path: ['confirm-password'],
+  });
+
+export default function FormDataWithZod() {
+  const [errors, setErrors] = useState({});
+
   function handleSubmit(event) {
     event.preventDefault();
-
     const fd = new FormData(event.target);
     const acquisitionChannel = fd.getAll('acquisition');
     const data = Object.fromEntries(fd.entries());
+
+    const result = schema.safeParse(data);
+    if (!result.success) {
+      const errs = {};
+      for (const issue of result.error.issues) {
+        const key = issue.path[0];
+        if (key !== undefined && !errs[key]) {
+          errs[key] = issue.message;
+        }
+      }
+      setErrors(errs);
+      return;
+    }
+
+    setErrors({});
     data.acquisition = acquisitionChannel;
     console.log(data);
   }
 
   const inputClass =
     'block w-full p-2 text-base rounded border border-[#758a8a] bg-[#d4e4e4] text-[#142020]';
+  const inputErrorClass =
+    'block w-full p-2 text-base rounded border border-red-500 bg-[#d4e4e4] text-[#142020]';
   const labelClass = 'block text-xs mb-1 text-[#9bafaf] uppercase font-bold';
+  const errorClass = 'text-red-500 text-xs mt-1';
+
+  function fieldClass(key) {
+    return errors[key] ? inputErrorClass : inputClass;
+  }
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-gray-50 p-4'>
@@ -30,7 +70,13 @@ export default function ComplexFormDataForm() {
           <label htmlFor='email' className={labelClass}>
             Email
           </label>
-          <input id='email' type='email' name='email' className={inputClass} />
+          <input
+            id='email'
+            type='email'
+            name='email'
+            className={fieldClass('email')}
+          />
+          {errors.email && <p className={errorClass}>{errors.email}</p>}
         </div>
 
         <div className='flex flex-col sm:flex-row gap-4 mb-4'>
@@ -42,8 +88,9 @@ export default function ComplexFormDataForm() {
               id='password'
               type='password'
               name='password'
-              className={inputClass}
+              className={fieldClass('password')}
             />
+            {errors.password && <p className={errorClass}>{errors.password}</p>}
           </div>
           <div className='flex-1'>
             <label htmlFor='confirm-password' className={labelClass}>
@@ -53,8 +100,11 @@ export default function ComplexFormDataForm() {
               id='confirm-password'
               type='password'
               name='confirm-password'
-              className={inputClass}
+              className={fieldClass('confirm-password')}
             />
+            {errors['confirm-password'] && (
+              <p className={errorClass}>{errors['confirm-password']}</p>
+            )}
           </div>
         </div>
 
@@ -69,8 +119,11 @@ export default function ComplexFormDataForm() {
               type='text'
               id='first-name'
               name='first-name'
-              className={inputClass}
+              className={fieldClass('first-name')}
             />
+            {errors['first-name'] && (
+              <p className={errorClass}>{errors['first-name']}</p>
+            )}
           </div>
           <div className='flex-1'>
             <label htmlFor='last-name' className={labelClass}>
@@ -80,8 +133,11 @@ export default function ComplexFormDataForm() {
               type='text'
               id='last-name'
               name='last-name'
-              className={inputClass}
+              className={fieldClass('last-name')}
             />
+            {errors['last-name'] && (
+              <p className={errorClass}>{errors['last-name']}</p>
+            )}
           </div>
         </div>
 
@@ -138,21 +194,25 @@ export default function ComplexFormDataForm() {
           </div>
         </fieldset>
 
-        <div className='flex items-center mb-6'>
-          <input
-            type='checkbox'
-            id='terms-and-conditions'
-            name='terms'
-            className='mr-2'
-          />
-          <label htmlFor='terms-and-conditions' className='text-gray-700'>
-            I agree to the terms and conditions
-          </label>
+        <div className='mb-6'>
+          <div className='flex items-center'>
+            <input
+              type='checkbox'
+              id='terms-and-conditions'
+              name='terms'
+              className='mr-2'
+            />
+            <label htmlFor='terms-and-conditions' className='text-gray-700'>
+              I agree to the terms and conditions
+            </label>
+          </div>
+          {errors.terms && <p className={errorClass}>{errors.terms}</p>}
         </div>
 
         <div className='flex justify-end gap-4'>
           <button
             type='reset'
+            onClick={() => setErrors({})}
             className='px-4 py-2 text-base rounded bg-transparent text-[#91efef] cursor-pointer hover:text-[#869999]'
           >
             Reset

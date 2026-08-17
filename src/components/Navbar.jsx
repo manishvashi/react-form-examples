@@ -14,9 +14,9 @@ const Navbar = () => {
 
   // Array containing navigation items
   const navItems = [
-    { label: `Controlled`, url: `/about` },
-    { label: `Uncontrolled`, url: `/posts` },
-    { label: `Router`, url: `/contact` },
+    { label: `Uncontrolled`, url: `/formdata` },
+    { label: `Router Form`, url: `/routerform` },
+    { label: `Form Data Zod`, url: `/zod` },
   ];
 
   return (

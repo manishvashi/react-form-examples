@@ -1,4 +1,9 @@
-import { HomeLayout, Landing, Error, Posts, About } from '../pages';
+import {
+  HomeLayout,
+  FormWIthFormData,
+  FormWithControlledInput,
+  FormWithZod,
+} from '../pages';
 
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import RouterForm, { action as contactAction } from '../components/RouterForm';
@@ -11,18 +16,18 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Landing />,
+        element: <FormWithControlledInput />,
       },
       {
-        path: 'about',
-        element: <About />,
+        path: 'formdata',
+        element: <FormWIthFormData />,
       },
       {
-        path: 'posts',
-        element: <Posts />,
+        path: 'zod',
+        element: <FormWithZod />,
       },
       {
-        path: 'contact',
+        path: 'routerform',
         element: <RouterForm />,
         action: contactAction,
       },

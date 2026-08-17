@@ -1,5 +1,5 @@
 import RouterForm from '@/components/RouterForm';
 
-export default function Contact() {
+export default function RouterFormPage() {
   return <RouterForm />;
 }

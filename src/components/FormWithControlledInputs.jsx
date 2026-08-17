@@ -11,8 +11,9 @@ const initialState = {
   terms: false,
 };
 
-export default function ControlledForm() {
+export default function FormWithControlledInputs() {
   const [formData, setFormData] = useState(initialState);
+  const [errors, setErrors] = useState({});
 
   function handleChange(event) {
     const { name, value, type, checked } = event.target;
@@ -30,18 +31,46 @@ export default function ControlledForm() {
     }
   }
 
+  function validate() {
+    const errs = {};
+    if (!formData.email) errs.email = 'Email is required';
+    if (!formData.password) errs.password = 'Password is required';
+    if (!formData.confirmPassword)
+      errs.confirmPassword = 'Please confirm your password';
+    else if (formData.password && formData.password !== formData.confirmPassword)
+      errs.confirmPassword = 'Passwords do not match';
+    if (!formData.firstName) errs.firstName = 'First name is required';
+    if (!formData.lastName) errs.lastName = 'Last name is required';
+    if (!formData.terms) errs.terms = 'You must accept the terms and conditions';
+    return errs;
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
+    const errs = validate();
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
     console.log(formData);
   }
 
   function handleReset() {
     setFormData(initialState);
+    setErrors({});
   }
 
   const inputClass =
     'block w-full p-2 text-base rounded border border-[#758a8a] bg-[#d4e4e4] text-[#142020]';
+  const inputErrorClass =
+    'block w-full p-2 text-base rounded border border-red-500 bg-[#d4e4e4] text-[#142020]';
   const labelClass = 'block text-xs mb-1 text-[#9bafaf] uppercase font-bold';
+  const errorClass = 'text-red-500 text-xs mt-1';
+
+  function fieldClass(key) {
+    return errors[key] ? inputErrorClass : inputClass;
+  }
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-gray-50 p-4'>
@@ -66,8 +95,9 @@ export default function ControlledForm() {
             name='email'
             value={formData.email}
             onChange={handleChange}
-            className={inputClass}
+            className={fieldClass('email')}
           />
+          {errors.email && <p className={errorClass}>{errors.email}</p>}
         </div>
 
         <div className='flex flex-col sm:flex-row gap-4 mb-4'>
@@ -81,8 +111,9 @@ export default function ControlledForm() {
               name='password'
               value={formData.password}
               onChange={handleChange}
-              className={inputClass}
+              className={fieldClass('password')}
             />
+            {errors.password && <p className={errorClass}>{errors.password}</p>}
           </div>
           <div className='flex-1'>
             <label htmlFor='confirm-password' className={labelClass}>
@@ -94,8 +125,11 @@ export default function ControlledForm() {
               name='confirmPassword'
               value={formData.confirmPassword}
               onChange={handleChange}
-              className={inputClass}
+              className={fieldClass('confirmPassword')}
             />
+            {errors.confirmPassword && (
+              <p className={errorClass}>{errors.confirmPassword}</p>
+            )}
           </div>
         </div>
 
@@ -112,8 +146,9 @@ export default function ControlledForm() {
               name='firstName'
               value={formData.firstName}
               onChange={handleChange}
-              className={inputClass}
+              className={fieldClass('firstName')}
             />
+            {errors.firstName && <p className={errorClass}>{errors.firstName}</p>}
           </div>
           <div className='flex-1'>
             <label htmlFor='last-name' className={labelClass}>
@@ -125,8 +160,9 @@ export default function ControlledForm() {
               name='lastName'
               value={formData.lastName}
               onChange={handleChange}
-              className={inputClass}
+              className={fieldClass('lastName')}
             />
+            {errors.lastName && <p className={errorClass}>{errors.lastName}</p>}
           </div>
         </div>
 
@@ -186,6 +222,7 @@ export default function ControlledForm() {
             I agree to the terms and conditions
           </label>
         </div>
+        {errors.terms && <p className={errorClass}>{errors.terms}</p>}
 
         <div className='flex justify-end gap-4'>
           <button

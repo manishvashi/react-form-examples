@@ -1,6 +1,6 @@
 export { default as HomeLayout } from './HomeLayout';
-export { default as Landing } from './Landing';
-export { default as Posts } from './Posts';
-export { default as Contact } from './Contact';
+export { default as FormWithControlledInput } from './ControlledForm';
+export { default as FormWithZod } from './FormWithZod';
+export { default as RouterForm } from './RouterForm';
 export { default as Error } from './Error';
-export { default as About } from './About';
+export { default as FormWIthFormData } from './FormWithFormData';

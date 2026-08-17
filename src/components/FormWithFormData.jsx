@@ -1,45 +1,44 @@
-import { Form, useActionData } from 'react-router-dom';
-import { z } from 'zod';
+import { useState } from 'react';
 
-const schema = z
-  .object({
-    email: z.email('Please enter a valid email address'),
-    password: z.string().min(1, 'Password is required'),
-    'confirm-password': z.string().min(1, 'Please confirm your password'),
-    'first-name': z.string().min(1, 'First name is required'),
-    'last-name': z.string().min(1, 'Last name is required'),
-    terms: z.string({ error: 'You must accept the terms and conditions' }),
-  })
-  .refine(data => data.password === data['confirm-password'], {
-    message: 'Passwords do not match',
-    path: ['confirm-password'],
-  });
+export default function FormWithFormData() {
+  const [errors, setErrors] = useState({});
 
-export async function action({ request }) {
-  const fd = await request.formData();
-  const acquisitionChannel = fd.getAll('acquisition');
-  const data = Object.fromEntries(fd.entries());
-
-  const result = schema.safeParse(data);
-  if (!result.success) {
+  function validate(fd) {
     const errs = {};
-    for (const issue of result.error.issues) {
-      const key = issue.path[0];
-      if (key !== undefined && !errs[key]) {
-        errs[key] = issue.message;
-      }
-    }
-    return { errors: errs };
+    const email = fd.get('email');
+    const password = fd.get('password');
+    const confirmPassword = fd.get('confirm-password');
+
+    if (!email) errs.email = 'Email is required';
+
+    if (!password) errs.password = 'Password is required';
+    if (!confirmPassword)
+      errs['confirm-password'] = 'Please confirm your password';
+    else if (password && password !== confirmPassword)
+      errs['confirm-password'] = 'Passwords do not match';
+
+    if (!fd.get('first-name')) errs['first-name'] = 'First name is required';
+    if (!fd.get('last-name')) errs['last-name'] = 'Last name is required';
+    if (!fd.get('terms'))
+      errs.terms = 'You must accept the terms and conditions';
+
+    return errs;
   }
 
-  data.acquisition = acquisitionChannel;
-  console.log(data);
-  return null;
-}
-
-export default function RouterForm() {
-  const actionData = useActionData();
-  const errors = actionData?.errors ?? {};
+  function handleSubmit(event) {
+    event.preventDefault();
+    const fd = new FormData(event.target);
+    const errs = validate(fd);
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
+    const acquisitionChannel = fd.getAll('acquisition');
+    const data = Object.fromEntries(fd.entries());
+    data.acquisition = acquisitionChannel;
+    console.log(data);
+  }
 
   const inputClass =
     'block w-full p-2 text-base rounded border border-[#758a8a] bg-[#d4e4e4] text-[#142020]';
@@ -54,8 +53,8 @@ export default function RouterForm() {
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-gray-50 p-4'>
-      <Form
-        method='post'
+      <form
+        onSubmit={handleSubmit}
         className='w-full max-w-xl bg-white rounded-2xl shadow-lg p-6 sm:p-10'
       >
         <h2 className='text-2xl font-bold text-center text-gray-800 mt-2 mb-1'>
@@ -69,7 +68,12 @@ export default function RouterForm() {
           <label htmlFor='email' className={labelClass}>
             Email
           </label>
-          <input id='email' type='email' name='email' className={fieldClass('email')} />
+          <input
+            id='email'
+            type='email'
+            name='email'
+            className={fieldClass('email')}
+          />
           {errors.email && <p className={errorClass}>{errors.email}</p>}
         </div>
 
@@ -206,6 +210,7 @@ export default function RouterForm() {
         <div className='flex justify-end gap-4'>
           <button
             type='reset'
+            onClick={() => setErrors({})}
             className='px-4 py-2 text-base rounded bg-transparent text-[#91efef] cursor-pointer hover:text-[#869999]'
           >
             Reset
@@ -217,7 +222,7 @@ export default function RouterForm() {
             Sign up
           </button>
         </div>
-      </Form>
+      </form>
     </div>
   );
 }
