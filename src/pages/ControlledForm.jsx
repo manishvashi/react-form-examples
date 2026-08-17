@@ -1,6 +1,6 @@
 import FormWithControlledInputs from '@/components/FormWithControlledInputs';
 
-function Landing() {
+function ControlledFormPage() {
   return <FormWithControlledInputs />;
 }
-export default Landing;
+export default ControlledFormPage;
