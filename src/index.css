@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.logo {
+  margin-left: 10px;
+}
+
+.logo img {
+  height: 80px;
+}
