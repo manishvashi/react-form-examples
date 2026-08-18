@@ -3,8 +3,9 @@ import {
   FormWIthFormData,
   FormWithControlledInput,
   FormWithZod,
+  ProductPage,
 } from '../pages';
-
+import { loader as productLoader } from '../pages/ProductPage';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import RouterForm, { action as contactAction } from '../components/RouterForm';
 
@@ -25,6 +26,11 @@ const router = createBrowserRouter([
       {
         path: 'zod',
         element: <FormWithZod />,
+      },
+      {
+        path: 'products',
+        element: <ProductPage />,
+        loader: productLoader,
       },
       {
         path: 'routerform',

@@ -17,6 +17,7 @@ const Navbar = () => {
     { label: `Uncontrolled`, url: `/formdata` },
     { label: `Router Form`, url: `/routerform` },
     { label: `Form Data Zod`, url: `/zod` },
+    { label: `Products`, url: `/products` },
   ];
 
   return (
